@@ -379,6 +379,7 @@ static __always_inline uint64_t __load_callback_pso(uint64_t *addr, size_t size)
 	struct kssb_access acc = INIT_KSSB_LOAD(addr, size);
 
 	__sanitize_memcov_trace_load(acc.inst, addr, size);
+	return 0;
 	__kssb_check_access(&acc);
 
 	raw_local_irq_save(flags);
@@ -397,6 +398,7 @@ static __always_inline void __store_callback_pso(uint64_t *addr, uint64_t val,
 	struct kssb_access acc = INIT_KSSB_STORE(addr, val, size);
 
 	__sanitize_memcov_trace_store(acc.inst, addr, size);
+	return;
 	__kssb_check_access(&acc);
 
 	raw_local_irq_save(flags);
@@ -409,6 +411,7 @@ static __always_inline void __store_callback_pso(uint64_t *addr, uint64_t val,
 
 static void __flush_callback_pso(void)
 {
+	return;
 	unsigned long flags;
 	raw_local_irq_save(flags);
 	// The flush callback should be called regardless of the
