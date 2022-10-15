@@ -201,10 +201,6 @@ struct request {
 	 */
 	rq_end_io_fn *end_io;
 	void *end_io_data;
-#ifdef CONFIG_KSSB
-	bool kssb_test;
-	int *kssb_test_ptr;
-#endif
 };
 
 static inline enum req_op req_op(const struct request *req)
