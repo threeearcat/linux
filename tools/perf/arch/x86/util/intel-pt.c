@@ -418,6 +418,7 @@ static int intel_pt_info_fill(struct auxtrace_record *itr,
 	return 0;
 }
 
+#ifdef HAVE_LIBTRACEEVENT
 static int intel_pt_track_switches(struct evlist *evlist)
 {
 	const char *sched_switch = "sched:sched_switch";
@@ -439,6 +440,7 @@ static int intel_pt_track_switches(struct evlist *evlist)
 
 	return 0;
 }
+#endif
 
 static void intel_pt_valid_str(char *str, size_t len, u64 valid)
 {
@@ -829,6 +831,7 @@ static int intel_pt_recording_options(struct auxtrace_record *itr,
 					ptr->have_sched_switch = 2;
 			}
 		} else {
+#ifdef HAVE_LIBTRACEEVENT
 			err = intel_pt_track_switches(evlist);
 			if (err == -EPERM)
 				pr_debug2("Unable to select sched:sched_switch\n");
@@ -836,6 +839,7 @@ static int intel_pt_recording_options(struct auxtrace_record *itr,
 				return err;
 			else
 				ptr->have_sched_switch = 1;
+#endif
 		}
 	}
 
@@ -866,7 +870,7 @@ static int intel_pt_recording_options(struct auxtrace_record *itr,
 		 * User space tasks can migrate between CPUs, so when tracing
 		 * selected CPUs, sideband for all CPUs is still needed.
 		 */
-		need_system_wide_tracking = evlist->core.has_user_cpus &&
+		need_system_wide_tracking = opts->target.cpu_list &&
 					    !intel_pt_evsel->core.attr.exclude_user;
 
 		tracking_evsel = evlist__add_aux_dummy(evlist, need_system_wide_tracking);
