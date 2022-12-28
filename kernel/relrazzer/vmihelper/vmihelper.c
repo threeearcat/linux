@@ -6,6 +6,7 @@
 #include <linux/kallsyms.h>
 #include <linux/qcsched/hcall.h>
 #include <linux/lockdep.h>
+#include <asm/preempt.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Dae R. Jeong");
@@ -24,6 +25,11 @@ static struct lockdep_map *whitelist[] = {
 #endif
 };
 
+// NOTE: The Linux commit e57ef2ed9 changed the memoryu layout of
+// per-cpu variables.
+#define current_task (pcpu_hot.current_task)
+#define __preempt_count (pcpu_hot.preempt_count)
+
 static void vmihelper_notify_lockdep_whitelist(void)
 {
 	int i;
@@ -35,8 +41,7 @@ static void vmihelper_notify_lockdep_whitelist(void)
 static int __init vmihelper_init(void)
 {
 	char *hook_name = "qcsched_hook_entry";
-	unsigned long addr = kallsyms_lookup_name(hook_name);
-	unsigned long ret;
+	unsigned long ret, addr = kallsyms_lookup_name(hook_name);
 	unsigned int num_cpus;
 	int i;
 
