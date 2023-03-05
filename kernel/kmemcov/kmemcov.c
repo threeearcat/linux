@@ -47,12 +47,12 @@ static bool notrace check_kmemcov_mode(enum kmemcov_mode needed_mode,
 #define get_clock() atomic_fetch_inc(&kmemcov_clock)
 // level 0 indicates the store/load callbacks, and level 1 indicates
 // the caller of the kssb callbacks.
-#define INIT_KMEMCOV_ACCESS(inst, addr, size, write)                           \
-	{                                                                      \
-		.inst = inst,                                                  \
-		.type = (write ? KMEMCOV_ACCESS_STORE : KMEMCOV_ACCESS_LOAD),  \
-		.addr = (uint64_t)addr, .size = size,                          \
-		.timestamp = get_clock(),                                      \
+#define INIT_KMEMCOV_ACCESS(inst, addr, size, write)                          \
+	{                                                                     \
+		.inst = inst,                                                 \
+		.type = (write ? KMEMCOV_ACCESS_STORE : KMEMCOV_ACCESS_LOAD), \
+		.addr = (uint64_t)addr, .size = size,                         \
+		.timestamp = get_clock(),                                     \
 	}
 
 static void __always_inline notrace __sanitize_memcov_trace_access_safe(
@@ -100,7 +100,7 @@ EXPORT_SYMBOL(__sanitize_memcov_trace_load);
 
 void sanitize_memcov_trace_store(const volatile void *addr, size_t size)
 {
-	__sanitize_memcov_trace_store(_RET_IP_, (void *) addr, size);
+	__sanitize_memcov_trace_store(_RET_IP_, (void *)addr, size);
 }
 EXPORT_SYMBOL(sanitize_memcov_trace_store);
 
@@ -235,7 +235,7 @@ static int kmemcov_mmap(struct file *filp, struct vm_area_struct *vma)
 
 	if (!kmemcov->area) {
 		kmemcov->area = area;
-		vma->vm_flags |= VM_DONTEXPAND;
+		vm_flags_set(vma, VM_DONTEXPAND);
 		spin_unlock(&kmemcov->lock);
 		for (off = 0; off < size; off += PAGE_SIZE) {
 			page = vmalloc_to_page(kmemcov->area + off);
